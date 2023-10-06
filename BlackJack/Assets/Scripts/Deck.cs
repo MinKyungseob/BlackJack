@@ -6,6 +6,8 @@ using System.Linq;
 
 public class Deck : MonoBehaviour
 {
+    public static Deck instance;
+
     [System.Serializable]
     public class DeckCard
     {
@@ -28,12 +30,23 @@ public class Deck : MonoBehaviour
     [SerializeField] Transform playerHand;
     [SerializeField] Transform dealerHand;
     // Start is called before the first frame update
-    void Start()
+    /*    void Start()
+        {
+            InitializeDeck();
+            ShuffleDack(cardDeck);
+            HandOutCards(true);
+            HandOutCards(false);
+        }*/
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    public void Initailize()
     {
         InitializeDeck();
-        ShuffleDack(cardDeck);
-        HandOutCards(true);
-        HandOutCards(false);
+        ShuffleDack(cardDeck); 
     }
 
     void InitializeDeck()
@@ -61,15 +74,15 @@ public class Deck : MonoBehaviour
         }
     }
 
-    void HandOutCards(bool isPlayer)
+    public Card HandOutCards(bool isPlayer)
     {
-        for (int i = 0; i < 2; i++)
-        {
-            GameObject newCard = Instantiate(cardPrefab);
-            DeckCard temp = cardDeck[0];
-            newCard.GetComponent<Card>().SetUpCard(temp.number, temp.symbol, isPlayer);    //PLAYER's
-            cardDeck.Remove(temp);
-            newCard.transform.SetParent(isPlayer?playerHand:dealerHand, false);
-        }
+        GameObject newCard = Instantiate(cardPrefab);
+        DeckCard temp = cardDeck[0];
+        Card nCard = newCard.GetComponent<Card>();
+        nCard.SetUpCard(temp.number, temp.symbol, isPlayer);    //PLAYER's
+        cardDeck.Remove(temp);
+        newCard.transform.SetParent(isPlayer?playerHand:dealerHand, false);
+
+        return nCard;
     }
 }
