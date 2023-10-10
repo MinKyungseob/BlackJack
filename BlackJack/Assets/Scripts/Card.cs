@@ -19,12 +19,14 @@ public class Card : MonoBehaviour
     int pointsOfCard;
     string symbol;
     string number;
+    bool reavealed;
 
     public void SetUpCard(string _number, string _symbol,bool isPlayer)
     {
         number = _number;
         numberText.text = number;
         symbol = _symbol;
+        reavealed = isPlayer;
         //VISUALIZE CONTENT
         switch(_symbol)
         {
@@ -111,4 +113,14 @@ public class Card : MonoBehaviour
         return pointsOfCard;
     }
     
+    public void ReavealCard()
+    {
+        if (!reavealed)
+        {
+            cardBackground.sprite = cardFront;
+            numberText.gameObject.SetActive(true);
+            spades.transform.parent.gameObject.SetActive(true);
+            reavealed = true;
+        }
+    }
 }

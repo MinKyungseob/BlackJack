@@ -85,4 +85,10 @@ public class Deck : MonoBehaviour
 
         return nCard;
     }
+
+    public void ResetCardDeck()
+    {
+        cardDeck.Clear();
+        Initailize();   
+    }
 }
