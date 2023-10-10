@@ -6,10 +6,18 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance;
+
     List<Card> playerCards = new List<Card>();
     List<Card> dealerCards = new List<Card>();
     [SerializeField] TMP_Text playerPointsText;
     [SerializeField] TMP_Text dealerPointsText;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +27,11 @@ public class GameManager : MonoBehaviour
     void InitializeGame()
     {
         Deck.instance.Initailize();
+        BettingSystem.instance.ActivateBetPanel(true);
+    }
+
+    public void GetCards()
+    {
         StartCoroutine(GetInitialCards());
     }
 
