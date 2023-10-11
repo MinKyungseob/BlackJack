@@ -20,7 +20,6 @@ public class BettingSystem : MonoBehaviour
     [SerializeField] Button hundredCoin;
 
     [SerializeField] GameObject gameOverUI;
-
     bool lostGame;
 
     private void Awake()
@@ -59,13 +58,21 @@ public class BettingSystem : MonoBehaviour
         }
     }
 
-    public void SetBet(int bet)
+    public void SetBet(string bet)
     {
         //Reset Last Bet
         currentMoney += currentBet;
-        //Plave the New Bet
-        currentBet = bet;
-        currentMoney -= bet;
+        if (bet.ToLower() == "allin")
+        {
+            currentBet = currentMoney;
+            currentMoney -= currentBet;
+        }
+        else
+        {
+            //Plave the New Bet
+            currentBet = int.Parse(bet);
+            currentMoney -= int.Parse(bet);
+        }
         UpdateMoneyAmount();
         MessageSystem.instance.SetMessage("Your Bet is:<color=yellow>" + currentBet + " Coins</color>");
     }
@@ -91,14 +98,16 @@ public class BettingSystem : MonoBehaviour
         {
             case "win":
                 //Let the player knows he got Win
-                currentMoney += currentBet * 2;
-                UpdateMoneyAmount();
                 if (isBlackJack)
                 {
+                    currentMoney += (int)(currentBet * 2.5);
+                    UpdateMoneyAmount();
                     MessageSystem.instance.SetMessage("<color=black>Black</color> <color=red>Jack</color>");
                 }
                 else
                 {
+                    currentMoney += currentBet * 2;
+                    UpdateMoneyAmount();
                     MessageSystem.instance.SetMessage("You <color=yellow>Won</color> this Round!");
                 }
                 break;
@@ -106,16 +115,21 @@ public class BettingSystem : MonoBehaviour
                 //Let the player knows he got Lost
                 MessageSystem.instance.SetMessage("You <color=red>Lost</color> this Round!");
                 //If Game Over
-                if (currentMoney <= 0)
+                if (currentMoney <= 0) 
                 {
                     lostGame = true;
-                    MessageSystem.instance.SetMessage("<color=red>Game Over</color>");
+                    MessageSystem.instance.SetMessage("<color=red>Game Over</color>\nNot Enough Money");
                 }
                 break;
             case "draw":
                 currentMoney += currentBet;
                 UpdateMoneyAmount();
                 MessageSystem.instance.SetMessage("You <color=blue>Draw</color> this Round!");
+                break;
+            case "bust":
+                currentMoney += currentBet;
+                UpdateMoneyAmount();
+                MessageSystem.instance.SetMessage("You <color=blue>Bust</color> this Round!");
                 break;
         }
         //ActivateBetPanel(true);
@@ -127,7 +141,12 @@ public class BettingSystem : MonoBehaviour
         else
         {
             //Show UI or Button to back to menu
-            gameOverUI.SetActive(true);
+            Invoke("GameOverUIOpen", 2);
         }
+    }
+
+    void GameOverUIOpen()
+    {
+        gameOverUI.SetActive(true);
     }
 }

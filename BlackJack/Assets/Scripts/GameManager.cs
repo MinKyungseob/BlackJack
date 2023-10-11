@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     {
         hitStayPanel.SetActive(false);
         InitializeGame();
+        playerPointsText.gameObject.SetActive(false);
+        dealerPointsText.gameObject.SetActive(false);
     }
 
     void InitializeGame()
@@ -40,6 +42,8 @@ public class GameManager : MonoBehaviour
 
     IEnumerator GetInitialCards()
     {
+        playerPointsText.gameObject.SetActive(true);
+        dealerPointsText.gameObject.SetActive(true);
         playerCards.Add(Deck.instance.HandOutCards(true));
         CountPlayerPoints();
         yield return new WaitForSeconds(0.4f);
@@ -51,9 +55,9 @@ public class GameManager : MonoBehaviour
         dealerCards.Add(Deck.instance.HandOutCards(false));
         yield return new WaitForSeconds(0.4f);
 
+        hitStayPanel.SetActive(true);
         CalcuateResult(true, true);
         //CountDealerPoints();
-        hitStayPanel.SetActive(true);
     }
 
     int CountDealerPoints()
@@ -82,7 +86,13 @@ public class GameManager : MonoBehaviour
     public void Hit()
     {
         playerCards.Add(Deck.instance.HandOutCards(true));
-        CalcuateResult(true, false);
+        CountPlayerPoints();
+        if(CountPlayerPoints()>21)
+        {
+            Stay();
+            hitStayPanel.SetActive(false);
+        }
+        //CalcuateResult(true, false);      // if there is a one hit, the game ends. normal game has multiple hits
         //IF WE HAVE LOST DO SOMETHING HERE
 
     }
@@ -135,23 +145,32 @@ public class GameManager : MonoBehaviour
         else
         {
             int dealerScore = CountDealerPoints();
-            
-            if (dealerScore > 21)
+
+            if (playerScore > 21 && dealerScore > 21)
+            {
+                BettingSystem.instance.RoundResult("bust", false);
+            }
+            else if (dealerScore < playerScore && playerScore <= 21)
             {
                 //Win
                 BettingSystem.instance.RoundResult("win", false);
             }
-            if (dealerScore == playerScore)
+            else if (playerScore <= 21 && dealerScore > 21)
+            {
+                //Win
+                BettingSystem.instance.RoundResult("win", false);
+            }
+            else if (dealerScore == playerScore)
             {
                 //Draw
                 BettingSystem.instance.RoundResult("draw", false);
             }
-            if (dealerScore < playerScore && playerScore <= 21)
+            else if (dealerScore > playerScore && dealerScore <= 21)
             {
-                //Win
-                BettingSystem.instance.RoundResult("win", false);
+                //Lose
+                BettingSystem.instance.RoundResult("lose", false);
             }
-            if (dealerScore > playerScore && dealerScore <= 21)
+            else if (playerScore >21 && dealerScore <= 21)
             {
                 //Lose
                 BettingSystem.instance.RoundResult("lose", false);
@@ -186,6 +205,8 @@ public class GameManager : MonoBehaviour
         BettingSystem.instance.ActivateBetPanel(true);
         playerPointsText.text = "--";
         dealerPointsText.text = "--";
+        playerPointsText.gameObject.SetActive(false);
+        dealerPointsText.gameObject.SetActive(false);
     }
 
     void RevealDealerCards()
